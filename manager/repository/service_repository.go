@@ -11,3 +11,7 @@ func NewServiceRepository() *ServiceRepository {
 		services: make(map[string]internal.Service),
 	}
 }
+
+func (r *ServiceRepository) AddService(service internal.Service) {
+	r.services[service.Name] = service
+}
