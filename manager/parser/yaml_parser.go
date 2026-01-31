@@ -19,5 +19,10 @@ func ParseServiceYAMLFile(filePath string) (*internal.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err := service.Validate(); err != nil {
+		return nil, err
+	}
+
 	return &service, nil
 }
