@@ -1,37 +1,23 @@
 package parser
 
-import "os"
+import (
+	"os"
 
-type YAMLParser struct {
-	content []byte
-}
+	"github.com/goccy/go-yaml"
+	"xamence.eu/craftkube/internal"
+)
 
-func NewYAMLParser(content []byte) *YAMLParser {
-	return &YAMLParser{
-		content: content,
-	}
-}
+func ParseServiceYAMLFile(filePath string) (*internal.Service, error) {
+	var service internal.Service
 
-func YamlFromPath(path string) (*YAMLParser, error) {
-	// Implementation to read YAML file from the given path
-	file, err := os.Open(path)
+	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	bufferReader := make([]byte, 1024)
-	data := []byte{}
-	for {
-		n, err := file.Read(bufferReader)
-		if err != nil {
-			return nil, err
-		}
-		if n == 0 {
-			break
-		}
-		data = append(data, bufferReader[:n]...)
+	err = yaml.Unmarshal(file, &service)
+	if err != nil {
+		return nil, err
 	}
-
-	return NewYAMLParser(data), nil
+	return &service, nil
 }
