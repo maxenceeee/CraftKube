@@ -1,0 +1,24 @@
+name: test-service
+image: test-image
+auto_scaling:
+  enable: true
+  min_instances: 1
+  max_instances: 5
+  cooldown: 60
+  trigger_logic: AND
+  upscale_policies:
+  - name: High CPU
+    type: CPU
+    condition:
+      threshold: 80
+      operator: ">"
+      value_type: Percentage
+    scale_amount: 1
+  downscale_policies:
+  - name: Low CPU
+    type: CPU
+    condition:
+      threshold: 30
+      operator: <
+      value_type: Percentage
+    scale_amount: 1

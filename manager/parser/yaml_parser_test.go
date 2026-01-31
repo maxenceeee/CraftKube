@@ -17,33 +17,29 @@ func TestCreateFileFromService(t *testing.T) {
 			MinInstances: 1,
 			MaxInstances: 5,
 			Cooldown:     60,
-			TriggerLogic: "AND",
-			Upscale: internal.UpscalePolicy{
-				Policies: []internal.Policy{
-					{
-						Name: "cpu-policy",
-						Type: "CPU",
-						Inhibitor: internal.Inhibitor{
-							Threshold: 80,
-							Operator:  "GreaterThan",
-							ValueType: "Percentage",
-						},
-						ScaleAmount: 1,
+			TriggerLogic: internal.LogicAND,
+			Upscale: []internal.Policy{
+				{
+					Name: "High CPU",
+					Type: internal.PolicyCPU,
+					Condition: internal.Condition{
+						Threshold: 80,
+						Operator:  internal.OpGreaterThan,
+						ValueType: internal.ValueTypePercentage,
 					},
+					ScaleAmount: 1,
 				},
 			},
-			Downscale: internal.DownscalePolicy{
-				Policies: []internal.Policy{
-					{
-						Name: "cpu-policy-down",
-						Type: "CPU",
-						Inhibitor: internal.Inhibitor{
-							Threshold: 30,
-							Operator:  "LessThan",
-							ValueType: "Percentage",
-						},
-						ScaleAmount: 1,
+			Downscale: []internal.Policy{
+				{
+					Name: "Low CPU",
+					Type: internal.PolicyCPU,
+					Condition: internal.Condition{
+						Threshold: 30,
+						Operator:  internal.OpLessThan,
+						ValueType: internal.ValueTypePercentage,
 					},
+					ScaleAmount: 1,
 				},
 			},
 		},
