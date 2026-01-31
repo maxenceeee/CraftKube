@@ -1,0 +1,82 @@
+version: "1.0" # Version of File Format System
+service: survival-premium # Name of the Minecraft Service
+image: papermc-1.20.4:latest # Docker image for the Minecraft server
+
+# --- Config Auto Scaling ---
+autoscaling:
+  enabled: true
+  min_instances: 2
+  max_instances: 15
+  # security for cooldown between scaling actions
+  cooldown_period: 300s 
+
+  # Triggers
+  # The orchestrator can use OR or AND logic to evaluate multiple policies
+  triggers_logic: OR
+
+  upscale_policies:
+    - type: game_metric
+      name: player_count
+      threshold: 18 
+      scaling_amount: 1 
+
+    - type: resource
+      name: cpu
+      threshold: 80% 
+      scaling_amount: 2
+
+  # SCALE DOWN POLICIES
+  # These rules determine when an instance becomes "unnecessary"
+  downscale_policies:
+    - type: game_metric
+      name: player_count
+      threshold: 5        # If fewer than 5 players
+      operator: "<"
+      scaling_amount: 1
+
+    - type: resource
+      name: cpu
+      threshold: 20%      # If CPU usage is low
+      operator: "<"
+      scaling_amount: 1
+
+    - type: custom
+      name: minecraft_tps
+      threshold: 19.5     # If TPS is consistently high
+      operator: ">"
+      scaling_amount: 1
+
+# --- Scale Down Configuration ---
+scale_down:
+  enabled: true
+  # Stabilization window: the service must be "eligible" for scale-down 
+  # for 5 consecutive minutes before the action is validated.
+  stabilization_window: 300s
+  
+  # --- Veto System (Guards) ---
+  # If any of these rules is "TRUE", scale-down is canceled.
+  inhibitors:
+    - name: "Active Players"
+      metric: player_count
+      operator: ">"
+      value: 0
+
+    - name: "Maintenance Lock"
+      metric: status_tag
+      operator: "=="
+      value: "locked"
+
+    - name: "Ongoing World Event"
+      metric: custom_event_active
+      operator: "=="
+      value: true
+
+    - name: "Recent Startup"
+      metric: uptime_seconds
+      operator: "<"
+      value: 600 # Do not scale down a server that has been up for less than 10 minutes
+
+    - name: "API Safety Check"
+      metric: remote_status
+      operator: "!="
+      value: "ready"

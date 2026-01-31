@@ -16,8 +16,8 @@ type AutoScalingConfig struct {
 	Enable       bool
 	MinInstances int
 	MaxInstances int
-	Cooldown     int // in seconds
-	TriggerLogic Logic
+	Cooldown     int   // in seconds
+	TriggerLogic Logic // AND / OR on multiple Policies by autoScaling policy type
 	Upscale      UpscalePolicy
 	Downscale    DownscalePolicy
 }
@@ -33,6 +33,7 @@ type DownscalePolicy struct {
 type Policy struct {
 	Name        string
 	Type        string
+	Inhibitor   Inhibitor
 	ScaleAmount int
 }
 
