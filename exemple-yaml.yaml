@@ -1,5 +1,5 @@
 version: "1.0" # Version of File Format System
-service: survival-premium # Name of the Minecraft Service
+name: survival-premium # Name of the Minecraft Service
 image: papermc-1.20.4:latest # Docker image for the Minecraft server
 
 # --- Config Auto Scaling ---

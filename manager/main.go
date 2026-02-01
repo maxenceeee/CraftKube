@@ -7,44 +7,20 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"xamence.eu/craftkube/manager/parser"
+	"xamence.eu/craftkube/manager/cli"
 	"xamence.eu/craftkube/manager/repository"
 )
 
-var repo *repository.ServiceRepository
+var RepoService *repository.ServiceRepository
 
 // Manager main entry point
 func main() {
 
-	repo = repository.NewServiceRepository()
+	RepoService = repository.NewServiceRepository()
 
-	var serviceCmd = &cobra.Command{
-		Use: "service",
-		Run: createServiceCmd,
-	}
+	cli.InitCommands(RepoService)
 
-	serviceCmd.Flags().StringP("file", "f", "", "Path to the service YAML file")
-	serviceCmd.MarkFlagRequired("file")
-
-	var rootCmd = &cobra.Command{
-		Use: "craftkube",
-	}
-
-	rootCmd.AddCommand(serviceCmd)
-
-	loopShell(rootCmd)
-
-}
-
-func createServiceCmd(cmd *cobra.Command, args []string) {
-	// Implementation of the service command
-	filePath := cmd.Flag("file").Value.String()
-	service, err := parser.ParseServiceYAMLFile(filePath)
-	if err != nil {
-		panic(err)
-	}
-
-	repo.AddService(*service)
+	loopShell(cli.GetRootCommand())
 }
 
 func loopShell(rootCmd *cobra.Command) {
